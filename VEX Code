@@ -1,0 +1,59 @@
+// L = total nr of samples
+// I sample index of the current channel
+
+//read input from the parameters
+float interTX = `chs("../tx")`;
+float interTY = `chs("../ty")`;
+float interTZ = `chs("../tz")`;
+float interTW = `chs("../tw")`;
+
+float interRX = `chs("../rx")`;
+float interRY = `chs("../ry")`;
+float interRZ = `chs("../rz")`;
+float interRW = `chs("../rw")`;
+
+//get total number of samples
+int frames = int(@L);
+
+//get middle sample
+int middle = (@S+@E)/2;
+
+//function for creating the linear interpolation
+void linearInter(float middle, I, V, FF, E, interW, interT, startF){
+    
+    int mid = int(middle + interW);
+
+    //move all samples before the mid to match the linear interpolation
+    if(I <= mid){
+    V += fit(FF, startF, mid+1, 0, interT);
+    }
+
+    //move all samples fter the mid to match the linear interpolation
+    else{
+        V += fit(FF, mid+1, E+1, interT, 0);
+    }
+}
+
+int startFrame = int(chendf(1));
+
+//call function for translations
+if(@CN == "tx"){
+    linearInter(middle, @I, @V, @FF, @E, interTW, interTX, startFrame);
+}
+if(@CN == "ty"){
+    linearInter(middle, @I, @V, @FF, @E, interTW, interTY, startFrame);
+}
+if(@CN == "tz"){
+    linearInter(middle, @I, @V, @FF, @E, interTW, interTZ, startFrame);
+}
+
+//call function for rotations
+if(@CN == "rx"){
+    linearInter(middle, @I, @V, @FF, @E, interRW, interRX, startFrame);
+}
+if(@CN == "ry"){
+    linearInter(middle, @I, @V, @FF, @E, interRW, interRY, startFrame);
+}
+if(@CN == "rz"){
+    linearInter(middle, @I, @V, @FF, @E, interRW, interRZ, startFrame);
+}
